@@ -435,7 +435,7 @@ func (isa *ISA) daInstruction(pc uint, ins uint) string {
 //-----------------------------------------------------------------------------
 
 // Disassemble a RISC-V instruction at the address.
-func (isa *ISA) Disassemble(ins, addr uint) (string, int) {
+func (isa *ISA) Disassemble(ins, addr uint) (string, uint) {
 	if ins&3 == 3 {
 		return isa.daInstruction(addr, ins), 4
 	}
