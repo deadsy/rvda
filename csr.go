@@ -11,37 +11,60 @@ package rvda
 import "fmt"
 
 //-----------------------------------------------------------------------------
-// machine isa register
+// Machine ISA register
 
-// ISA Extension Bitmap
+// csr.MISA Extension Bitmap
 const (
-	misaExtA = (1 << iota) // Atomic extension
-	misaExtB               // Tentatively reserved for Bit-Manipulation extension
-	misaExtC               // Compressed extension
-	misaExtD               // Double-precision floating-point extension
-	misaExtE               // RV32E base ISA
-	misaExtF               // Single-precision floating-point extension
-	misaExtG               // Additional standard extensions present
-	misaExtH               // Hypervisor extension
-	misaExtI               // RV32I/64I/128I base ISA
-	misaExtJ               // Tentatively reserved for Dynamically Translated Languages extension
-	misaExtK               // Reserved
-	misaExtL               // Tentatively reserved for Decimal Floating-Point extension
-	misaExtM               // Integer Multiply/Divide extension
-	misaExtN               // User-level interrupts supported
-	misaExtO               // Reserved
-	misaExtP               // Tentatively reserved for Packed-SIMD extension
-	misaExtQ               // Quad-precision floating-point extension
-	misaExtR               // Reserved
-	misaExtS               // Supervisor mode implemented
-	misaExtT               // Tentatively reserved for Transactional Memory extension
-	misaExtU               // User mode implemented
-	misaExtV               // Tentatively reserved for Vector extension
-	misaExtW               // Reserved
-	misaExtX               // Non-standard extensions present
-	misaExtY               // Reserved
-	misaExtZ               // Reserved
+	ExtA = (1 << iota) // Atomic extension
+	ExtB               // Tentatively reserved for Bit-Manipulation extension
+	ExtC               // Compressed extension
+	ExtD               // Double-precision floating-point extension
+	ExtE               // RV32E base ISA
+	ExtF               // Single-precision floating-point extension
+	ExtG               // Additional standard extensions present
+	ExtH               // Hypervisor extension
+	ExtI               // RV32I/64I/128I base ISA
+	ExtJ               // Tentatively reserved for Dynamically Translated Languages extension
+	ExtK               // Reserved
+	ExtL               // Tentatively reserved for Decimal Floating-Point extension
+	ExtM               // Integer Multiply/Divide extension
+	ExtN               // User-level interrupts supported
+	ExtO               // Reserved
+	ExtP               // Tentatively reserved for Packed-SIMD extension
+	ExtQ               // Quad-precision floating-point extension
+	ExtR               // Reserved
+	ExtS               // Supervisor mode implemented
+	ExtT               // Tentatively reserved for Transactional Memory extension
+	ExtU               // User mode implemented
+	ExtV               // Tentatively reserved for Vector extension
+	ExtW               // Reserved
+	ExtX               // Non-standard extensions present
+	ExtY               // Reserved
+	ExtZ               // Reserved
 )
+
+// checkExt returns if the extension is present in MISA.
+func checkExt(misa uint, ext rune) bool {
+	n := int(ext) - int('a')
+	if n < 0 || n >= 26 {
+		return false
+	}
+	return (misa & (1 << n)) != 0
+}
+
+func fmtExt(ext uint) string {
+	s := []rune{}
+	for i := 0; i < 26; i++ {
+		if ext&1 != 0 {
+			s = append(s, 'a'+rune(i))
+		}
+		ext >>= 1
+	}
+	if len(s) != 0 {
+		return fmt.Sprintf("\"%s\"", string(s))
+	}
+	return "none"
+}
 
 //-----------------------------------------------------------------------------
 
