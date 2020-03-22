@@ -350,7 +350,7 @@ func testSet(mxlen, ext uint, tests []daTest) error {
 	for _, v := range tests {
 		da := isa.daInstruction(v.pc, v.ins)
 		if v.da != da {
-			return fmt.Errorf("ins %08x \"%s\" (expected) \"%s\" (actual)", v.ins, v.da, da)
+			return fmt.Errorf("%s: ins %08x \"%s\" (expected) \"%s\" (actual)", isa, v.ins, v.da, da)
 		}
 	}
 	return nil
@@ -397,7 +397,7 @@ func Test_Disassembly(t *testing.T) {
 		{32, ExtA, rv32aTest},
 		{32, ExtF, rv32fTest},
 		{32, ExtD, rv32dTest},
-		{32, ExtC, rv32cTest},
+		{32, ExtI | ExtC, rv32cTest},
 		{32, ExtF | ExtC, rv32fcTest},
 		{32, ExtD | ExtC, rv32dcTest},
 		// rv64
@@ -406,7 +406,7 @@ func Test_Disassembly(t *testing.T) {
 		{64, ExtA, rv64aTest},
 		{64, ExtF, rv64fTest},
 		{64, ExtD, rv64dTest},
-		{64, ExtC, rv64cTest},
+		{64, ExtI | ExtC, rv64cTest},
 		// together
 		{32, RV32gc, rv32Tests},
 		{64, RV64gc, rv64Tests},

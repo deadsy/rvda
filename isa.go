@@ -9,6 +9,7 @@ RISC-V ISA Definition
 package rvda
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -23,8 +24,8 @@ type insDefn struct {
 	da   daFunc // disassembly function
 }
 
-// ISAModule is a set/module of RISC-V instructions.
-type ISAModule struct {
+// isaModule is a set/module of RISC-V instructions.
+type isaModule struct {
 	ext  uint      // ISA extension bits per CSR misa
 	ilen int       // instruction length
 	defn []insDefn // instruction definitions
@@ -34,7 +35,7 @@ type ISAModule struct {
 // RV32 instructions
 
 // isaRV32i integer instructions.
-var isaRV32i = ISAModule{
+var isaRV32i = isaModule{
 	ext:  ExtI,
 	ilen: 32,
 	defn: []insDefn{
@@ -96,7 +97,7 @@ var isaRV32i = ISAModule{
 }
 
 // isaRV32m integer multiplication/division instructions.
-var isaRV32m = ISAModule{
+var isaRV32m = isaModule{
 	ext:  ExtM,
 	ilen: 32,
 	defn: []insDefn{
@@ -112,7 +113,7 @@ var isaRV32m = ISAModule{
 }
 
 // isaRV32a atomic operation instructions.
-var isaRV32a = ISAModule{
+var isaRV32a = isaModule{
 	ext:  ExtA,
 	ilen: 32,
 	defn: []insDefn{
@@ -131,7 +132,7 @@ var isaRV32a = ISAModule{
 }
 
 // isaRV32f 32-bit floating point instructions.
-var isaRV32f = ISAModule{
+var isaRV32f = isaModule{
 	ext:  ExtF,
 	ilen: 32,
 	defn: []insDefn{
@@ -165,7 +166,7 @@ var isaRV32f = ISAModule{
 }
 
 // isaRV32d 64-bit floating point instructions.
-var isaRV32d = ISAModule{
+var isaRV32d = isaModule{
 	ext:  ExtD,
 	ilen: 32,
 	defn: []insDefn{
@@ -199,7 +200,7 @@ var isaRV32d = ISAModule{
 }
 
 // isaRV32c compressed instructions (subset of RV64C).
-var isaRV32c = ISAModule{
+var isaRV32c = isaModule{
 	ext:  ExtC,
 	ilen: 16,
 	defn: []insDefn{
@@ -235,7 +236,7 @@ var isaRV32c = ISAModule{
 }
 
 // isaRV32cOnly compressed instructions (not in RV64C).
-var isaRV32cOnly = ISAModule{
+var isaRV32cOnly = isaModule{
 	ext:  ExtC,
 	ilen: 16,
 	defn: []insDefn{
@@ -244,7 +245,7 @@ var isaRV32cOnly = ISAModule{
 }
 
 // isaRV32fc compressed 32-bit floating point instructions.
-var isaRV32fc = ISAModule{
+var isaRV32fc = isaModule{
 	ext:  ExtC,
 	ilen: 16,
 	defn: []insDefn{
@@ -256,7 +257,7 @@ var isaRV32fc = ISAModule{
 }
 
 // isaRV32dc compressed 64-bit floating point instructions.
-var isaRV32dc = ISAModule{
+var isaRV32dc = isaModule{
 	ext:  ExtC,
 	ilen: 16,
 	defn: []insDefn{
@@ -271,7 +272,7 @@ var isaRV32dc = ISAModule{
 // RV64 instructions (+ RV32)
 
 // isaRV64i Integer
-var isaRV64i = ISAModule{
+var isaRV64i = isaModule{
 	ext:  ExtI,
 	ilen: 32,
 	defn: []insDefn{
@@ -294,7 +295,7 @@ var isaRV64i = ISAModule{
 }
 
 // isaRV64m Integer Multiplication and Division
-var isaRV64m = ISAModule{
+var isaRV64m = isaModule{
 	ext:  ExtM,
 	ilen: 32,
 	defn: []insDefn{
@@ -307,7 +308,7 @@ var isaRV64m = ISAModule{
 }
 
 // isaRV64a Atomics
-var isaRV64a = ISAModule{
+var isaRV64a = isaModule{
 	ext:  ExtA,
 	ilen: 32,
 	defn: []insDefn{
@@ -326,7 +327,7 @@ var isaRV64a = ISAModule{
 }
 
 // isaRV64f Single-Precision Floating-Point
-var isaRV64f = ISAModule{
+var isaRV64f = isaModule{
 	ext:  ExtF,
 	ilen: 32,
 	defn: []insDefn{
@@ -338,7 +339,7 @@ var isaRV64f = ISAModule{
 }
 
 // isaRV64d Double-Precision Floating-Point
-var isaRV64d = ISAModule{
+var isaRV64d = isaModule{
 	ext:  ExtD,
 	ilen: 32,
 	defn: []insDefn{
@@ -352,7 +353,7 @@ var isaRV64d = ISAModule{
 }
 
 // isaRV64c Compressed
-var isaRV64c = ISAModule{
+var isaRV64c = isaModule{
 	ext:  ExtC,
 	ilen: 16,
 	defn: []insDefn{
@@ -369,7 +370,7 @@ var isaRV64c = ISAModule{
 //-----------------------------------------------------------------------------
 
 // isaRV128c Compressed
-var isaRV128c = ISAModule{
+var isaRV128c = isaModule{
 	ext:  ExtC,
 	ilen: 16,
 	defn: []insDefn{
@@ -426,7 +427,7 @@ func (isa *ISA) lookup(ins uint) *insMeta {
 }
 
 // add a sub-module to the ISA.
-func (isa *ISA) add(module []ISAModule) error {
+func (isa *ISA) add(module []isaModule) error {
 	for i := range module {
 		isa.ext |= module[i].ext
 		for j := range module[i].defn {
@@ -455,7 +456,7 @@ type ISA struct {
 }
 
 func (isa *ISA) String() string {
-	return fmt.Sprintf("mxlen %d ext %s", isa.mxlen, fmtExt(isa.ext))
+	return fmt.Sprintf("RV%d ext %s", isa.mxlen, fmtExt(isa.ext))
 }
 
 // New creates a new RISC-V instruction set.
@@ -463,48 +464,50 @@ func New(mxlen, ext uint) (*ISA, error) {
 	if mxlen != 32 && mxlen != 64 {
 		return nil, fmt.Errorf("%d-bit register length is not supported", mxlen)
 	}
-
+	if ext == 0 {
+		return nil, errors.New("ext 0 invalid, add ISA modules")
+	}
 	// build the list of ISA modules
-	mod := []ISAModule{}
+	mod := []isaModule{}
 
 	// compression?
 	cEnable := checkExt(ext, 'c')
 
-	// integer base
-	if checkExt(ext, 'i') {
-		mod = append(mod, isaRV32i)
-		if cEnable {
-			mod = append(mod, isaRV32c)
+	// RV32/64/128
+	if mxlen >= 32 {
+		// integer base
+		if checkExt(ext, 'i') {
+			mod = append(mod, isaRV32i)
+			if cEnable {
+				mod = append(mod, isaRV32c)
+				if mxlen == 32 {
+					mod = append(mod, isaRV32cOnly)
+				}
+			}
+		}
+		// multiply divide
+		if checkExt(ext, 'm') {
+			mod = append(mod, isaRV32m)
+		}
+		// 32-bit floats
+		if checkExt(ext, 'f') {
+			mod = append(mod, isaRV32f)
+			if mxlen == 32 && cEnable {
+				mod = append(mod, isaRV32fc)
+			}
+		}
+		// 64-bit floats
+		if checkExt(ext, 'd') {
+			mod = append(mod, isaRV32d)
+			if cEnable {
+				mod = append(mod, isaRV32dc)
+			}
+		}
+		// atomics
+		if checkExt(ext, 'a') {
+			mod = append(mod, isaRV32a)
 		}
 	}
-	// multiply divide
-	if checkExt(ext, 'm') {
-		mod = append(mod, isaRV32m)
-	}
-	// 32-bit floats
-	if checkExt(ext, 'f') {
-		mod = append(mod, isaRV32f)
-		if cEnable {
-			mod = append(mod, isaRV32fc)
-		}
-	}
-	// 64-bit floats
-	if checkExt(ext, 'd') {
-		mod = append(mod, isaRV32d)
-		if cEnable {
-			mod = append(mod, isaRV32dc)
-		}
-	}
-	// atomics
-	if checkExt(ext, 'a') {
-		mod = append(mod, isaRV32a)
-	}
-
-	// RV32 + compression
-	if mxlen == 32 && cEnable {
-		mod = append(mod, isaRV32cOnly)
-	}
-
 	// RV64
 	if mxlen >= 64 {
 		// integer base
@@ -530,6 +533,10 @@ func New(mxlen, ext uint) (*ISA, error) {
 		if checkExt(ext, 'a') {
 			mod = append(mod, isaRV64a)
 		}
+	}
+	// RV128
+	if mxlen >= 128 {
+		// TODO
 	}
 	// create the ISA
 	isa := &ISA{
