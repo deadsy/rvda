@@ -434,12 +434,39 @@ func (isa *ISA) daInstruction(pc uint, ins uint) string {
 
 //-----------------------------------------------------------------------------
 
-// Disassemble a RISC-V instruction at the address.
-func (isa *ISA) Disassemble(ins, addr uint) (string, uint) {
-	if ins&3 == 3 {
-		return isa.daInstruction(addr, ins), 4
+// Disassembly returns the result of the disassembler call.
+type Disassembly struct {
+	Addr       uint // address
+	AddrLength uint // address length in bits
+	Ins        uint // instruction
+	InsLength  uint // instruction length in bytes
+	Assembly   string
+}
+
+func (da *Disassembly) String() string {
+	addrFmt := fmt.Sprintf("%%0%dx", da.AddrLength>>2)
+	addrStr := fmt.Sprintf(addrFmt, da.Addr)
+	if da.InsLength == 2 {
+		return fmt.Sprintf("%s: %04x     \t%s", addrStr, da.Ins, da.Assembly)
 	}
-	return isa.daInstruction(addr, ins), 2
+	return fmt.Sprintf("%s: %08x \t%s", addrStr, da.Ins, da.Assembly)
+}
+
+// Disassemble a RISC-V instruction at the address.
+func (isa *ISA) Disassemble(addr, ins uint) *Disassembly {
+	da := &Disassembly{
+		Addr:       addr,
+		AddrLength: isa.mxlen,
+	}
+	if ins&3 == 3 {
+		da.Ins = uint(uint32(ins))
+		da.InsLength = 4
+	} else {
+		da.Ins = uint(uint16(ins))
+		da.InsLength = 2
+	}
+	da.Assembly = isa.daInstruction(addr, ins)
+	return da
 }
 
 //-----------------------------------------------------------------------------

@@ -348,9 +348,9 @@ func testSet(mxlen, ext uint, tests []daTest) error {
 		return err
 	}
 	for _, v := range tests {
-		da := isa.daInstruction(v.pc, v.ins)
-		if v.da != da {
-			return fmt.Errorf("%s: ins %08x \"%s\" (expected) \"%s\" (actual)", isa, v.ins, v.da, da)
+		da := isa.Disassemble(v.pc, v.ins)
+		if v.da != da.Assembly {
+			return fmt.Errorf("%s: ins %08x \"%s\" (expected) \"%s\" (actual)", isa, v.ins, v.da, da.Assembly)
 		}
 	}
 	return nil
