@@ -3,8 +3,6 @@
 
 Example code for the rvda package.
 
-Open a RISC-V ELF file and disassemble the code.
-
 */
 //-----------------------------------------------------------------------------
 
