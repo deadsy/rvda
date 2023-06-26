@@ -43,7 +43,7 @@ func daTypeIa(name string, pc uint, ins uint) string {
 
 func daTypeIb(name string, pc uint, ins uint) string {
 	imm, rs1, rd := decodeIa(ins)
-	if rs1 == 0 && imm == 0 {
+	if rd == 0 && rs1 == 0 && imm == 0 {
 		return fmt.Sprintf("nop")
 	}
 	if rs1 == 0 {
