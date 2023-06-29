@@ -10,6 +10,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 
 	"github.com/deadsy/rvda"
@@ -22,7 +23,14 @@ func disassemble() error {
 	if err != nil {
 		return err
 	}
+	// dump the ISA descriptor
 	fmt.Printf("%s\n", isa)
+	// disassemble random instructions
+	for pc := 0; pc < 64; pc++ {
+		ins := uint(rand.Uint32())
+		da := isa.Disassemble(uint(pc), ins)
+		fmt.Printf("%s\n", da)
+	}
 	return nil
 }
 
